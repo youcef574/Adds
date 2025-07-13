@@ -1,126 +1,126 @@
 // ===== GLOBAL VARIABLES =====
-let currentLanguage = localStorage.getItem('language') || 'fr';
-let quillShort, quillDetailed;
-let mainImageDropzone, galleryDropzone;
+let currentLanguage = localStorage.getItem('language') || 'ar';
 let formData = {
     mainImage: null,
     galleryImages: [],
-    variants: {}
+    variants: []
 };
 let validationRules = {};
 let progressPercentage = 0;
 let autoSaveInterval;
 let variantCounter = 0;
+let quillEditor = null;
 
 // ===== LANGUAGE SYSTEM =====
 const translations = {
-    fr: {
+    ar: {
         // Header & Navigation
-        'dashboard': 'Tableau de bord',
-        'settings': 'Paramètres',
-        'logout': 'Déconnexion',
+        'dashboard': 'لوحة التحكم',
+        'settings': 'الإعدادات',
+        'logout': 'تسجيل الخروج',
         
         // Page Title
-        'add_new_product': 'Ajouter un nouveau produit',
-        'fill_product_info': 'Complétez les informations ci-dessous pour ajouter votre produit',
-        'form_progress': 'Progression du formulaire',
-        'progress': 'Progression',
+        'add_new_product': 'إضافة منتج جديد',
+        'fill_product_info': 'املأ المعلومات أدناه لإضافة منتجك',
+        'form_progress': 'تقدم النموذج',
+        'progress': 'التقدم',
         
         // Form Sections
-        'basic_information': 'Informations de base',
-        'essential_product_details': 'Détails essentiels du produit',
-        'product_description': 'Description du produit',
-        'describe_product_detail': 'Décrivez votre produit en détail',
-        'product_images': 'Images du produit',
-        'add_attractive_images': 'Ajoutez des images attrayantes',
-        'product_variants': 'Variantes du produit',
-        'add_options_color_size': 'Ajoutez des options comme la couleur, la taille, etc.',
-        'additional_options': 'Options supplémentaires',
-        'advanced_product_settings': 'Paramètres avancés du produit',
+        'basic_information': 'المعلومات الأساسية',
+        'essential_product_details': 'تفاصيل المنتج الأساسية',
+        'product_description': 'وصف المنتج',
+        'describe_product_detail': 'اوصف منتجك بالتفصيل',
+        'product_images': 'صور المنتج',
+        'add_attractive_images': 'أضف صوراً جذابة',
+        'product_variants': 'متغيرات المنتج',
+        'add_options_color_size': 'أضف خيارات مثل اللون والحجم',
+        'additional_options': 'خيارات إضافية',
+        'advanced_product_settings': 'إعدادات المنتج المتقدمة',
         
         // Form Fields
-        'product_name': 'Nom du produit',
-        'price_dzd': 'Prix (DZD)',
-        'quantity_optional': 'Quantité (optionnel)',
-        'short_description': 'Description courte',
-        'detailed_description': 'Description détaillée',
-        'main_image': 'Image principale',
-        'image_gallery': 'Galerie d\'images',
-        'variant_name': 'Nom de la variante',
-        'variant_value': 'Valeur de la variante',
-        'store_visibility': 'Visibilité dans la boutique',
-        'visible': 'Visible',
-        'hidden': 'Masqué',
+        'product_name': 'اسم المنتج',
+        'price_dzd': 'السعر (دج)',
+        'quantity_optional': 'الكمية (اختياري)',
+        'short_description': 'وصف مختصر',
+        'detailed_description': 'وصف مفصل',
+        'main_image': 'الصورة الرئيسية',
+        'image_gallery': 'معرض الصور',
+        'detailed_description_placeholder': 'اكتب وصفاً مفصلاً عن منتجك هنا...',
+        'variant_name': 'اسم المتغير',
+        'variant_value': 'قيمة المتغير',
+        'store_visibility': 'الظهور في المتجر',
+        'visible': 'مرئي',
+        'hidden': 'مخفي',
         
         // Buttons
-        'save_product': 'Enregistrer le produit',
-        'reset': 'Réinitialiser',
-        'preview': 'Aperçu',
-        'save_as_draft': 'Sauvegarder comme brouillon',
-        'add_variant': 'Ajouter une variante',
-        'add_value': 'Ajouter',
-        'remove': 'Supprimer',
-        'ok': 'OK',
-        'cancel': 'Annuler',
+        'save_product': 'حفظ المنتج',
+        'reset': 'إعادة تعيين',
+        'preview': 'معاينة',
+        'save_as_draft': 'حفظ كمسودة',
+        'add_variant': 'إضافة متغير',
+        'add_value': 'إضافة',
+        'remove': 'حذف',
+        'ok': 'موافق',
+        'cancel': 'إلغاء',
         
         // Dropzone
-        'drop_main_image_here': 'Glissez votre image principale ici',
-        'or_click_to_select': 'ou cliquez pour sélectionner',
-        'png_jpg_webp_5mb': 'PNG, JPG, WEBP jusqu\'à 5MB',
-        'add_additional_images': 'Ajoutez des images supplémentaires',
-        'up_to_5_images': 'Jusqu\'à 5 images',
-        'png_jpg_webp_5mb_each': 'PNG, JPG, WEBP jusqu\'à 5MB chacune',
+        'drop_main_image_here': 'اسحب صورتك الرئيسية هنا',
+        'or_click_to_select': 'أو انقر للاختيار',
+        'png_jpg_webp_5mb': 'PNG, JPG, WEBP حتى 5MB',
+        'add_additional_images': 'أضف صوراً إضافية',
+        'up_to_5_images': 'حتى 5 صور',
+        'png_jpg_webp_5mb_each': 'PNG, JPG, WEBP حتى 5MB لكل صورة',
         
         // Variants
-        'variant': 'Variante',
-        'enter_variant_name': 'Entrez le nom de la variante (ex: Couleur, Taille)',
-        'enter_variant_value': 'Entrez une valeur et appuyez sur Entrée',
+        'variant': 'متغير',
+        'enter_variant_name': 'أدخل اسم المتغير (مثل: اللون، الحجم)',
+        'enter_variant_value': 'أدخل قيمة واضغط Enter',
         
         // Validation Messages
-        'field_required': 'Ce champ est obligatoire',
-        'min_length': 'Minimum {min} caractères requis',
-        'max_length': 'Maximum {max} caractères autorisés',
-        'invalid_price': 'Veuillez entrer un prix valide',
-        'invalid_quantity': 'Veuillez entrer une quantité valide',
-        'invalid_file_format': 'Format de fichier non supporté',
-        'file_too_large': 'Fichier trop volumineux (max {size}MB)',
-        'max_images_reached': 'Maximum {max} images autorisées',
-        'duplicate_value': 'Cette valeur existe déjà',
-        'max_values_reached': 'Maximum {max} valeurs autorisées',
-        'variant_name_required': 'Le nom de la variante est requis',
-        'variant_values_required': 'Au moins une valeur est requise',
+        'field_required': 'هذا الحقل مطلوب',
+        'min_length': 'الحد الأدنى {min} أحرف مطلوب',
+        'max_length': 'الحد الأقصى {max} حرف مسموح',
+        'invalid_price': 'يرجى إدخال سعر صحيح',
+        'invalid_quantity': 'يرجى إدخال كمية صحيحة',
+        'invalid_file_format': 'تنسيق الملف غير مدعوم',
+        'file_too_large': 'الملف كبير جداً (الحد الأقصى {size}MB)',
+        'max_images_reached': 'الحد الأقصى {max} صور مسموح',
+        'duplicate_value': 'هذه القيمة موجودة بالفعل',
+        'max_values_reached': 'الحد الأقصى {max} قيم مسموح',
+        'variant_name_required': 'اسم المتغير مطلوب',
+        'variant_values_required': 'قيمة واحدة على الأقل مطلوبة',
         
         // Success Messages
-        'product_saved': 'Produit enregistré avec succès',
-        'draft_saved': 'Brouillon sauvegardé',
-        'form_reset': 'Formulaire réinitialisé',
-        'variant_added': 'Variante ajoutée',
-        'variant_removed': 'Variante supprimée',
-        'value_added': 'Valeur ajoutée',
-        'value_removed': 'Valeur supprimée',
-        'auto_save_restored': 'Données auto-sauvegardées restaurées',
+        'product_saved': 'تم حفظ المنتج بنجاح',
+        'draft_saved': 'تم حفظ المسودة',
+        'form_reset': 'تم إعادة تعيين النموذج',
+        'variant_added': 'تم إضافة المتغير',
+        'variant_removed': 'تم حذف المتغير',
+        'value_added': 'تم إضافة القيمة',
+        'value_removed': 'تم حذف القيمة',
+        'auto_save_restored': 'تم استعادة البيانات المحفوظة تلقائياً',
         
         // Error Messages
-        'save_error': 'Erreur lors de la sauvegarde',
-        'network_error': 'Erreur de connexion',
-        'validation_error': 'Veuillez corriger les erreurs dans le formulaire',
-        'load_error': 'Erreur lors du chargement',
+        'save_error': 'خطأ في حفظ المنتج',
+        'network_error': 'خطأ في الشبكة',
+        'validation_error': 'يرجى إصلاح الأخطاء في النموذج',
+        'load_error': 'خطأ في تحميل البيانات',
         
         // Modal
-        'success': 'Succès',
-        'error': 'Erreur',
-        'warning': 'Attention',
-        'confirm': 'Confirmation',
-        'info': 'Information',
+        'success': 'نجح',
+        'error': 'خطأ',
+        'warning': 'تحذير',
+        'confirm': 'تأكيد',
+        'info': 'معلومات',
         
         // Loading
-        'saving': 'Enregistrement en cours...',
-        'loading': 'Chargement...',
-        'processing': 'Traitement en cours...',
+        'saving': 'جاري الحفظ...',
+        'loading': 'جاري التحميل...',
+        'processing': 'جاري المعالجة...',
         
         // Other
-        'confirm_action': 'Êtes-vous sûr de vouloir effectuer cette action ?',
-        'unsaved_changes': 'Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?'
+        'confirm_action': 'هل أنت متأكد من تنفيذ هذا الإجراء؟',
+        'unsaved_changes': 'لديك تغييرات غير محفوظة. هل تريد المغادرة حقاً؟'
     },
     en: {
         // Header & Navigation
@@ -154,6 +154,7 @@ const translations = {
         'detailed_description': 'Detailed Description',
         'main_image': 'Main Image',
         'image_gallery': 'Image Gallery',
+        'detailed_description_placeholder': 'Write a detailed description of your product here...',
         'variant_name': 'Variant Name',
         'variant_value': 'Variant Value',
         'store_visibility': 'Store Visibility',
@@ -249,14 +250,6 @@ function generateId() {
     return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
 // ===== LANGUAGE FUNCTIONS =====
 function translate(key, params = {}) {
     let text = translations[currentLanguage][key] || key;
@@ -270,10 +263,12 @@ function translate(key, params = {}) {
 }
 
 function updateLanguage() {
-    // Update all elements with data-fr and data-en attributes
-    document.querySelectorAll('[data-fr][data-en]').forEach(element => {
-        const text = currentLanguage === 'fr' ? element.getAttribute('data-fr') : element.getAttribute('data-en');
-        if (element.tagName === 'INPUT' && element.type !== 'radio' && element.type !== 'checkbox') {
+    // Update all elements with data-key attributes
+    document.querySelectorAll('[data-key]').forEach(element => {
+        const key = element.getAttribute('data-key');
+        const text = translate(key);
+        
+        if (element.tagName === 'INPUT' && (element.type === 'text' || element.type === 'number')) {
             element.placeholder = text;
         } else {
             element.textContent = text;
@@ -281,49 +276,98 @@ function updateLanguage() {
     });
     
     // Update language toggle button
-    const langToggle = document.getElementById('langToggle');
-    if (langToggle) {
-        langToggle.querySelector('span').textContent = currentLanguage.toUpperCase();
+    const langText = document.getElementById('langText');
+    if (langText) {
+        langText.textContent = currentLanguage === 'ar' ? 'العربية' : 'English';
+    }
+    
+    // Update HTML direction
+    document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLanguage;
+    
+    // Update Quill editor direction
+    if (quillEditor) {
+        const editorElement = quillEditor.container.querySelector('.ql-editor');
+        if (editorElement) {
+            editorElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+        }
     }
     
     // Update progress text
     updateProgressText();
     
-    // Update Quill editor placeholders
-    updateQuillPlaceholders();
-    
-    // Update dropzone texts
-    updateDropzoneTexts();
-    
     // Save language preference
     localStorage.setItem('language', currentLanguage);
 }
 
-function updateQuillPlaceholders() {
-    if (quillShort) {
-        quillShort.root.dataset.placeholder = translate('short_description');
-    }
-    if (quillDetailed) {
-        quillDetailed.root.dataset.placeholder = translate('detailed_description');
-    }
-}
-
-function updateDropzoneTexts() {
-    // Update dropzone content will be handled in initDropzones
-    const mainDropzone = document.querySelector('#mainImageDropzone .dropzone-content h4');
-    const galleryDropzone = document.querySelector('#imageGalleryDropzone .dropzone-content h4');
-    
-    if (mainDropzone) {
-        mainDropzone.textContent = translate('drop_main_image_here');
-    }
-    if (galleryDropzone) {
-        galleryDropzone.textContent = translate('add_additional_images');
-    }
-}
-
 function toggleLanguage() {
-    currentLanguage = currentLanguage === 'fr' ? 'en' : 'fr';
+    currentLanguage = currentLanguage === 'ar' ? 'en' : 'ar';
     updateLanguage();
+}
+
+// ===== QUILL EDITOR SETUP =====
+function initQuillEditor() {
+    if (typeof Quill === 'undefined') {
+        console.error('Quill is not loaded');
+        return;
+    }
+    
+    const toolbarOptions = [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }, { 'direction': 'rtl' }],
+        ['link', 'image', 'video'],
+        ['clean']
+    ];
+    
+    const quillContainer = document.getElementById('detailedDescription');
+    if (!quillContainer) {
+        console.error('Quill container not found');
+        return;
+    }
+    
+    quillEditor = new Quill('#detailedDescription', {
+        theme: 'snow',
+        modules: {
+            toolbar: toolbarOptions
+        },
+        placeholder: translate('detailed_description_placeholder'),
+        bounds: quillContainer.parentElement
+    });
+    
+    // Set initial direction based on language
+    const editorElement = quillEditor.container.querySelector('.ql-editor');
+    if (editorElement) {
+        editorElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+    }
+    
+    // Update hidden input when content changes
+    quillEditor.on('text-change', function() {
+        const content = quillEditor.root.innerHTML;
+        const hiddenInput = document.getElementById('detailedDescriptionHidden');
+        if (hiddenInput) {
+            hiddenInput.value = content;
+            validateField('detailedDescriptionHidden', content);
+            calculateProgress();
+            autoSaveForm();
+        }
+    });
+    
+    // Handle focus and blur for validation styling
+    quillEditor.on('selection-change', function(range) {
+        const quillContainer = document.querySelector('.quill-editor');
+        if (range) {
+            // Editor has focus
+            quillContainer.classList.add('focused');
+        } else {
+            // Editor lost focus
+            quillContainer.classList.remove('focused');
+            const content = quillEditor.root.innerHTML;
+            validateField('detailedDescriptionHidden', content, true);
+        }
+    });
 }
 
 // ===== VALIDATION SYSTEM =====
@@ -348,16 +392,10 @@ function initValidationRules() {
             minLength: 10,
             maxLength: 200
         },
-        detailedDescription: {
+        detailedDescriptionHidden: {
             required: true,
             minLength: 30,
             maxLength: 2000
-        },
-        mainImage: {
-            required: true,
-            type: 'file',
-            formats: ['jpg', 'jpeg', 'png', 'webp'],
-            maxSize: 5 // MB
         }
     };
 }
@@ -378,8 +416,16 @@ function validateField(fieldName, value, showError = true) {
         errorElement.textContent = '';
     }
     
+    // For Quill editor, handle validation differently
+    if (fieldName === 'detailedDescriptionHidden') {
+        const quillContainer = document.querySelector('.quill-editor');
+        if (quillContainer) {
+            quillContainer.classList.remove('valid', 'invalid');
+        }
+    }
+    
     // Required validation
-    if (rules.required && (!value || value.toString().trim() === '')) {
+    if (rules.required && (!value || value.toString().trim() === '' || value === '<p><br></p>')) {
         if (showError) {
             showFieldError(fieldName, translate('field_required'));
         }
@@ -387,8 +433,12 @@ function validateField(fieldName, value, showError = true) {
     }
     
     // Skip other validations if field is empty and not required
-    if (!value || value.toString().trim() === '') {
+    if (!value || value.toString().trim() === '' || value === '<p><br></p>') {
         if (field) field.classList.add('valid');
+        if (fieldName === 'detailedDescriptionHidden') {
+            const quillContainer = document.querySelector('.quill-editor');
+            if (quillContainer) quillContainer.classList.add('valid');
+        }
         return true;
     }
     
@@ -411,44 +461,36 @@ function validateField(fieldName, value, showError = true) {
         }
     }
     
-    // Length validation
-    if (rules.minLength && value.length < rules.minLength) {
+    // Length validation for HTML content
+    let textLength = value.length;
+    if (fieldName === 'detailedDescriptionHidden') {
+        // Strip HTML tags for length calculation
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = value;
+        textLength = tempDiv.textContent.length;
+    }
+    
+    if (rules.minLength && textLength < rules.minLength) {
         if (showError) {
             showFieldError(fieldName, translate('min_length', { min: rules.minLength }));
         }
         return false;
     }
     
-    if (rules.maxLength && value.length > rules.maxLength) {
+    if (rules.maxLength && textLength > rules.maxLength) {
         if (showError) {
             showFieldError(fieldName, translate('max_length', { max: rules.maxLength }));
         }
         return false;
     }
     
-    // File validation
-    if (rules.type === 'file' && value instanceof File) {
-        // Format validation
-        const extension = value.name.split('.').pop().toLowerCase();
-        if (rules.formats && !rules.formats.includes(extension)) {
-            if (showError) {
-                showFieldError(fieldName, translate('invalid_file_format'));
-            }
-            return false;
-        }
-        
-        // Size validation
-        if (rules.maxSize && value.size > rules.maxSize * 1024 * 1024) {
-            if (showError) {
-                showFieldError(fieldName, translate('file_too_large', { size: rules.maxSize }));
-            }
-            return false;
-        }
-    }
-    
     // Field is valid
     if (field) {
         field.classList.add('valid');
+    }
+    if (fieldName === 'detailedDescriptionHidden') {
+        const quillContainer = document.querySelector('.quill-editor');
+        if (quillContainer) quillContainer.classList.add('valid');
     }
     
     return true;
@@ -463,6 +505,15 @@ function showFieldError(fieldName, message) {
         field.classList.remove('valid');
     }
     
+    // For Quill editor, handle error styling differently
+    if (fieldName === 'detailedDescriptionHidden') {
+        const quillContainer = document.querySelector('.quill-editor');
+        if (quillContainer) {
+            quillContainer.classList.add('invalid');
+            quillContainer.classList.remove('valid');
+        }
+    }
+    
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.classList.add('show');
@@ -474,14 +525,10 @@ function validateForm() {
     
     // Validate basic fields
     Object.keys(validationRules).forEach(fieldName => {
-        let value;
+        let value = '';
         
-        if (fieldName === 'shortDescription') {
-            value = quillShort ? quillShort.getText().trim() : '';
-        } else if (fieldName === 'detailedDescription') {
-            value = quillDetailed ? quillDetailed.getText().trim() : '';
-        } else if (fieldName === 'mainImage') {
-            value = formData.mainImage || null;
+        if (fieldName === 'detailedDescriptionHidden') {
+            value = quillEditor ? quillEditor.root.innerHTML : '';
         } else {
             const field = document.getElementById(fieldName);
             value = field ? field.value : '';
@@ -498,32 +545,31 @@ function validateForm() {
 // ===== PROGRESS BAR =====
 function calculateProgress() {
     const fields = [
-        { id: 'productName', weight: 15 },
-        { id: 'productPrice', weight: 15 },
+        { id: 'productName', weight: 20 },
+        { id: 'productPrice', weight: 20 },
         { id: 'productQuantity', weight: 5 },
-        { id: 'shortDescription', weight: 15, isQuill: true, editor: quillShort },
-        { id: 'detailedDescription', weight: 20, isQuill: true, editor: quillDetailed },
-        { id: 'mainImage', weight: 20, isFile: true },
-        { id: 'imageGallery', weight: 10, isGallery: true }
+        { id: 'shortDescription', weight: 15 },
+        { id: 'detailedDescriptionHidden', weight: 20, isQuill: true },
+        { id: 'mainImage', weight: 15, isFile: true },
+        { id: 'variants', weight: 5, isVariants: true }
     ];
     
     let totalProgress = 0;
     
     fields.forEach(field => {
-        let value = '';
         let isCompleted = false;
         
-        if (field.isQuill && field.editor) {
-            value = field.editor.getText().trim();
-            isCompleted = value.length > 0;
-        } else if (field.isFile) {
-            isCompleted = formData.mainImage !== null && formData.mainImage !== undefined;
-        } else if (field.isGallery) {
-            isCompleted = formData.galleryImages && formData.galleryImages.length > 0;
+        if (field.isFile) {
+            isCompleted = formData.mainImage !== null;
+        } else if (field.isVariants) {
+            isCompleted = formData.variants.length > 0;
+        } else if (field.isQuill) {
+            const content = quillEditor ? quillEditor.root.innerHTML : '';
+            isCompleted = content && content.trim() !== '' && content !== '<p><br></p>';
         } else {
             const element = document.getElementById(field.id);
             if (element) {
-                value = element.value.trim();
+                const value = element.value.trim();
                 isCompleted = value.length > 0;
             }
         }
@@ -542,786 +588,4 @@ function updateProgressBar() {
     const progressPercentageEl = document.getElementById('progressPercentage');
     
     if (progressFill) {
-        progressFill.style.width = progressPercentage + '%';
-    }
-    
-    if (progressPercentageEl) {
-        progressPercentageEl.textContent = Math.round(progressPercentage) + '%';
-    }
-    
-    updateProgressText();
-}
-
-function updateProgressText() {
-    const progressText = document.getElementById('progressText');
-    if (progressText) {
-        progressText.textContent = translate('progress') + ': ' + Math.round(progressPercentage) + '%';
-    }
-}
-
-// ===== QUILL EDITOR SETUP =====
-function initQuillEditors() {
-    // Short description editor
-    quillShort = new Quill('#shortDescription', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                ['link'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['clean']
-            ]
-        },
-        placeholder: translate('short_description')
-    });
-    
-    // Detailed description editor
-    quillDetailed = new Quill('#detailedDescription', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'align': [] }],
-                ['link', 'image'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['blockquote', 'code-block'],
-                ['clean']
-            ]
-        },
-        placeholder: translate('detailed_description')
-    });
-    
-    // Add event listeners for validation and progress
-    quillShort.on('text-change', debounce(() => {
-        const content = quillShort.getText().trim();
-        validateField('shortDescription', content);
-        calculateProgress();
-        autoSaveForm();
-    }, 300));
-    
-    quillDetailed.on('text-change', debounce(() => {
-        const content = quillDetailed.getText().trim();
-        validateField('detailedDescription', content);
-        calculateProgress();
-        autoSaveForm();
-    }, 300));
-}
-
-// ===== DROPZONE SETUP =====
-function initDropzones() {
-    // Disable Dropzone auto-discovery
-    Dropzone.autoDiscover = false;
-    
-    // Main image dropzone
-    mainImageDropzone = new Dropzone('#mainImageDropzone', {
-        url: '/upload', // This will be handled by our custom logic
-        maxFiles: 1,
-        acceptedFiles: 'image/jpeg,image/jpg,image/png,image/webp',
-        maxFilesize: 5, // MB
-        addRemoveLinks: true,
-        autoProcessQueue: false,
-        dictDefaultMessage: '',
-        dictRemoveFile: '×',
-        dictFileTooBig: translate('file_too_large', { size: '{{maxFilesize}}' }),
-        dictInvalidFileType: translate('invalid_file_format')
-    });
-    
-    // Gallery dropzone
-    galleryDropzone = new Dropzone('#imageGalleryDropzone', {
-        url: '/upload',
-        maxFiles: 5,
-        acceptedFiles: 'image/jpeg,image/jpg,image/png,image/webp',
-        maxFilesize: 5,
-        addRemoveLinks: true,
-        autoProcessQueue: false,
-        dictDefaultMessage: '',
-        dictRemoveFile: '×',
-        dictFileTooBig: translate('file_too_large', { size: '{{maxFilesize}}' }),
-        dictInvalidFileType: translate('invalid_file_format'),
-        dictMaxFilesExceeded: translate('max_images_reached', { max: '{{maxFiles}}' })
-    });
-    
-    // Main image events
-    mainImageDropzone.on('addedfile', function(file) {
-        formData.mainImage = file;
-        validateField('mainImage', file);
-        calculateProgress();
-        autoSaveForm();
-    });
-    
-    mainImageDropzone.on('removedfile', function(file) {
-        formData.mainImage = null;
-        validateField('mainImage', null);
-        calculateProgress();
-        autoSaveForm();
-    });
-    
-    // Gallery events
-    galleryDropzone.on('addedfile', function(file) {
-        if (!formData.galleryImages) {
-            formData.galleryImages = [];
-        }
-        formData.galleryImages.push(file);
-        calculateProgress();
-        autoSaveForm();
-    });
-    
-    galleryDropzone.on('removedfile', function(file) {
-        if (formData.galleryImages) {
-            const index = formData.galleryImages.indexOf(file);
-            if (index > -1) {
-                formData.galleryImages.splice(index, 1);
-            }
-        }
-        calculateProgress();
-        autoSaveForm();
-    });
-    
-    // Error handling
-    mainImageDropzone.on('error', function(file, message) {
-        showToast('error', translate('error'), message);
-    });
-    
-    galleryDropzone.on('error', function(file, message) {
-        showToast('error', translate('error'), message);
-    });
-}
-
-// ===== VARIANT MANAGEMENT =====
-function initVariantSystem() {
-    const addVariantBtn = document.getElementById('addVariantBtn');
-    if (addVariantBtn) {
-        addVariantBtn.addEventListener('click', addVariant);
-    }
-}
-
-function addVariant() {
-    variantCounter++;
-    const variantId = 'variant_' + generateId();
-    
-    formData.variants[variantId] = {
-        name: '',
-        values: []
-    };
-    
-    const variantHTML = `
-        <div class="variant-item" data-variant-id="${variantId}">
-            <div class="variant-header">
-                <h4 class="variant-title">${translate('variant')} ${variantCounter}</h4>
-                <button type="button" class="variant-remove" onclick="removeVariant('${variantId}')">
-                    <i class="fas fa-trash"></i>
-                    <span>${translate('remove')}</span>
-                </button>
-            </div>
-            <div class="variant-content">
-                <div class="form-field variant-name-input">
-                    <label for="${variantId}_name">${translate('variant_name')}</label>
-                    <div class="input-container">
-                        <input type="text" 
-                               id="${variantId}_name" 
-                               placeholder="${translate('enter_variant_name')}"
-                               onchange="updateVariantName('${variantId}', this.value)">
-                        <div class="input-icon">
-                            <i class="fas fa-tag"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-field variant-values">
-                    <label>${translate('variant_value')}</label>
-                    <div class="values-input-container">
-                        <input type="text" 
-                               id="${variantId}_value_input" 
-                               placeholder="${translate('enter_variant_value')}"
-                               onkeypress="handleVariantValueKeyPress(event, '${variantId}')">
-                        <button type="button" class="add-value-btn" onclick="addVariantValue('${variantId}')">
-                            <i class="fas fa-plus"></i>
-                            <span>${translate('add_value')}</span>
-                        </button>
-                    </div>
-                    <div class="tags-display" id="${variantId}_tags"></div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('variantsContainer').insertAdjacentHTML('beforeend', variantHTML);
-    updateVariantStatus(variantId);
-    showToast('success', translate('success'), translate('variant_added'));
-}
-
-function removeVariant(variantId) {
-    if (confirm(translate('confirm_action'))) {
-        const variantElement = document.querySelector(`[data-variant-id="${variantId}"]`);
-        if (variantElement) {
-            variantElement.remove();
-        }
-        
-        delete formData.variants[variantId];
-        autoSaveForm();
-        showToast('success', translate('success'), translate('variant_removed'));
-    }
-}
-
-function updateVariantName(variantId, name) {
-    if (formData.variants[variantId]) {
-        formData.variants[variantId].name = name.trim();
-        updateVariantStatus(variantId);
-        autoSaveForm();
-    }
-}
-
-function handleVariantValueKeyPress(event, variantId) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        addVariantValue(variantId);
-    }
-}
-
-function addVariantValue(variantId) {
-    const input = document.getElementById(`${variantId}_value_input`);
-    if (!input) return;
-    
-    const value = input.value.trim();
-    if (!value) {
-        showToast('warning', translate('warning'), translate('field_required'));
-        return;
-    }
-    
-    if (!formData.variants[variantId]) {
-        formData.variants[variantId] = { name: '', values: [] };
-    }
-    
-    // Check for duplicates
-    if (formData.variants[variantId].values.includes(value)) {
-        showToast('warning', translate('warning'), translate('duplicate_value'));
-        return;
-    }
-    
-    // Check max values limit
-    if (formData.variants[variantId].values.length >= 20) {
-        showToast('warning', translate('warning'), translate('max_values_reached', { max: 20 }));
-        return;
-    }
-    
-    formData.variants[variantId].values.push(value);
-    input.value = '';
-    
-    renderVariantTags(variantId);
-    updateVariantStatus(variantId);
-    autoSaveForm();
-    showToast('success', translate('success'), translate('value_added'));
-}
-
-function removeVariantValue(variantId, value) {
-    if (formData.variants[variantId]) {
-        const index = formData.variants[variantId].values.indexOf(value);
-        if (index > -1) {
-            formData.variants[variantId].values.splice(index, 1);
-            renderVariantTags(variantId);
-            updateVariantStatus(variantId);
-            autoSaveForm();
-            showToast('success', translate('success'), translate('value_removed'));
-        }
-    }
-}
-
-function renderVariantTags(variantId) {
-    const tagsContainer = document.getElementById(`${variantId}_tags`);
-    if (!tagsContainer || !formData.variants[variantId]) return;
-    
-    tagsContainer.innerHTML = '';
-    
-    if (formData.variants[variantId].values.length > 0) {
-        tagsContainer.classList.add('has-tags');
-    } else {
-        tagsContainer.classList.remove('has-tags');
-    }
-    
-    formData.variants[variantId].values.forEach(value => {
-        const tag = document.createElement('div');
-        tag.className = 'tag';
-        tag.innerHTML = `
-            <span>${value}</span>
-            <button type="button" class="tag-remove" onclick="removeVariantValue('${variantId}', '${value}')">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        tagsContainer.appendChild(tag);
-    });
-}
-
-function updateVariantStatus(variantId) {
-    const variantElement = document.querySelector(`[data-variant-id="${variantId}"]`);
-    if (!variantElement || !formData.variants[variantId]) return;
-    
-    const hasName = formData.variants[variantId].name.length > 0;
-    const hasValues = formData.variants[variantId].values.length > 0;
-    
-    if (hasName || hasValues) {
-        variantElement.classList.add('active');
-    } else {
-        variantElement.classList.remove('active');
-    }
-}
-
-// ===== FORM HANDLING =====
-function initFormHandling() {
-    const form = document.getElementById('productForm');
-    const resetBtn = document.getElementById('resetBtn');
-    const previewBtn = document.getElementById('previewBtn');
-    const draftBtn = document.getElementById('draftBtn');
-    
-    if (form) {
-        form.addEventListener('submit', handleFormSubmit);
-    }
-    
-    if (resetBtn) {
-        resetBtn.addEventListener('click', handleFormReset);
-    }
-    
-    if (previewBtn) {
-        previewBtn.addEventListener('click', handlePreview);
-    }
-    
-    if (draftBtn) {
-        draftBtn.addEventListener('click', handleSaveDraft);
-    }
-    
-    // Add input event listeners for real-time validation
-    const inputs = form.querySelectorAll('input, select');
-    inputs.forEach(input => {
-        if (input.type !== 'file' && input.type !== 'radio' && input.type !== 'checkbox') {
-            input.addEventListener('input', debounce((e) => {
-                validateField(e.target.id || e.target.name, e.target.value);
-                calculateProgress();
-                autoSaveForm();
-            }, 300));
-            
-            input.addEventListener('blur', (e) => {
-                validateField(e.target.id || e.target.name, e.target.value, true);
-            });
-        }
-    });
-}
-
-function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-        showToast('error', translate('error'), translate('validation_error'));
-        return;
-    }
-    
-    showLoadingOverlay(true);
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    setButtonLoading(submitBtn, true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-        setButtonLoading(submitBtn, false);
-        showLoadingOverlay(false);
-        showModal('success', translate('success'), translate('product_saved'));
-        clearAutoSave();
-        
-        // Redirect after 3 seconds
-        setTimeout(() => {
-            console.log('Redirecting to dashboard...');
-        }, 3000);
-    }, 2000);
-}
-
-function handleFormReset() {
-    if (confirm(translate('confirm_action'))) {
-        // Reset form
-        document.getElementById('productForm').reset();
-        
-        // Reset Quill editors
-        if (quillShort) quillShort.setText('');
-        if (quillDetailed) quillDetailed.setText('');
-        
-        // Reset dropzones
-        if (mainImageDropzone) mainImageDropzone.removeAllFiles();
-        if (galleryDropzone) galleryDropzone.removeAllFiles();
-        
-        // Reset variants
-        document.getElementById('variantsContainer').innerHTML = '';
-        variantCounter = 0;
-        
-        // Reset form data
-        formData = {
-            mainImage: null,
-            galleryImages: [],
-            variants: {}
-        };
-        
-        // Reset validation states
-        document.querySelectorAll('.valid, .invalid').forEach(el => {
-            el.classList.remove('valid', 'invalid');
-        });
-        
-        document.querySelectorAll('.error-message.show').forEach(el => {
-            el.classList.remove('show');
-        });
-        
-        // Reset progress
-        progressPercentage = 0;
-        updateProgressBar();
-        
-        // Clear auto-save
-        clearAutoSave();
-        
-        showToast('success', translate('success'), translate('form_reset'));
-    }
-}
-
-function handlePreview() {
-    const previewData = collectFormData();
-    console.log('Preview data:', previewData);
-    showToast('info', translate('info'), 'Preview functionality would open here');
-}
-
-function handleSaveDraft() {
-    const draftBtn = document.getElementById('draftBtn');
-    setButtonLoading(draftBtn, true);
-    
-    const draftData = collectFormData();
-    localStorage.setItem('productDraft', JSON.stringify(draftData));
-    
-    setTimeout(() => {
-        setButtonLoading(draftBtn, false);
-        showToast('success', translate('success'), translate('draft_saved'));
-    }, 1000);
-}
-
-function collectFormData() {
-    const data = {
-        productName: document.getElementById('productName')?.value || '',
-        productPrice: document.getElementById('productPrice')?.value || '',
-        productQuantity: document.getElementById('productQuantity')?.value || '',
-        shortDescription: quillShort ? quillShort.getContents() : null,
-        detailedDescription: quillDetailed ? quillDetailed.getContents() : null,
-        storeVisibility: document.querySelector('input[name="storeVisibility"]:checked')?.value || 'yes',
-        variants: formData.variants,
-        timestamp: new Date().toISOString()
-    };
-    
-    return data;
-}
-
-function setButtonLoading(button, loading) {
-    if (!button) return;
-    
-    if (loading) {
-        button.classList.add('loading');
-        button.disabled = true;
-    } else {
-        button.classList.remove('loading');
-        button.disabled = false;
-    }
-}
-
-// ===== AUTO-SAVE FUNCTIONALITY =====
-function initAutoSave() {
-    // Auto-save every 30 seconds
-    autoSaveInterval = setInterval(autoSaveForm, 30000);
-    
-    // Save on page unload
-    window.addEventListener('beforeunload', (e) => {
-        const hasUnsavedChanges = checkForUnsavedChanges();
-        if (hasUnsavedChanges) {
-            autoSaveForm();
-            e.preventDefault();
-            e.returnValue = translate('unsaved_changes');
-        }
-    });
-}
-
-function autoSaveForm() {
-    const autoSaveData = collectFormData();
-    localStorage.setItem('productAutoSave', JSON.stringify(autoSaveData));
-}
-
-function restoreAutoSave() {
-    const autoSaveData = localStorage.getItem('productAutoSave');
-    if (autoSaveData) {
-        try {
-            const data = JSON.parse(autoSaveData);
-            
-            // Restore basic fields
-            if (data.productName) document.getElementById('productName').value = data.productName;
-            if (data.productPrice) document.getElementById('productPrice').value = data.productPrice;
-            if (data.productQuantity) document.getElementById('productQuantity').value = data.productQuantity;
-            
-            // Restore Quill content
-            if (data.shortDescription && quillShort) {
-                quillShort.setContents(data.shortDescription);
-            }
-            if (data.detailedDescription && quillDetailed) {
-                quillDetailed.setContents(data.detailedDescription);
-            }
-            
-            // Restore radio selection
-            if (data.storeVisibility) {
-                const radio = document.querySelector(`input[name="storeVisibility"][value="${data.storeVisibility}"]`);
-                if (radio) radio.checked = true;
-            }
-            
-            // Restore variants
-            if (data.variants) {
-                Object.keys(data.variants).forEach(variantId => {
-                    const variant = data.variants[variantId];
-                    if (variant.name || variant.values.length > 0) {
-                        formData.variants[variantId] = variant;
-                        // Create variant UI
-                        variantCounter++;
-                        const variantHTML = createVariantHTML(variantId, variantCounter);
-                        document.getElementById('variantsContainer').insertAdjacentHTML('beforeend', variantHTML);
-                        
-                        // Restore variant data
-                        if (variant.name) {
-                            const nameInput = document.getElementById(`${variantId}_name`);
-                            if (nameInput) nameInput.value = variant.name;
-                        }
-                        
-                        if (variant.values.length > 0) {
-                            renderVariantTags(variantId);
-                        }
-                        
-                        updateVariantStatus(variantId);
-                    }
-                });
-            }
-            
-            // Recalculate progress
-            calculateProgress();
-            
-            showToast('info', translate('info'), translate('auto_save_restored'));
-        } catch (error) {
-            console.error('Error restoring auto-save:', error);
-        }
-    }
-}
-
-function createVariantHTML(variantId, counter) {
-    return `
-        <div class="variant-item" data-variant-id="${variantId}">
-            <div class="variant-header">
-                <h4 class="variant-title">${translate('variant')} ${counter}</h4>
-                <button type="button" class="variant-remove" onclick="removeVariant('${variantId}')">
-                    <i class="fas fa-trash"></i>
-                    <span>${translate('remove')}</span>
-                </button>
-            </div>
-            <div class="variant-content">
-                <div class="form-field variant-name-input">
-                    <label for="${variantId}_name">${translate('variant_name')}</label>
-                    <div class="input-container">
-                        <input type="text" 
-                               id="${variantId}_name" 
-                               placeholder="${translate('enter_variant_name')}"
-                               onchange="updateVariantName('${variantId}', this.value)">
-                        <div class="input-icon">
-                            <i class="fas fa-tag"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-field variant-values">
-                    <label>${translate('variant_value')}</label>
-                    <div class="values-input-container">
-                        <input type="text" 
-                               id="${variantId}_value_input" 
-                               placeholder="${translate('enter_variant_value')}"
-                               onkeypress="handleVariantValueKeyPress(event, '${variantId}')">
-                        <button type="button" class="add-value-btn" onclick="addVariantValue('${variantId}')">
-                            <i class="fas fa-plus"></i>
-                            <span>${translate('add_value')}</span>
-                        </button>
-                    </div>
-                    <div class="tags-display" id="${variantId}_tags"></div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function clearAutoSave() {
-    localStorage.removeItem('productAutoSave');
-    if (autoSaveInterval) {
-        clearInterval(autoSaveInterval);
-    }
-}
-
-function checkForUnsavedChanges() {
-    const currentData = collectFormData();
-    return Object.values(currentData).some(value => 
-        value && value !== '' && value !== 'yes'
-    );
-}
-
-// ===== UI UTILITIES =====
-function showLoadingOverlay(show) {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-        if (show) {
-            overlay.classList.add('show');
-        } else {
-            overlay.classList.remove('show');
-        }
-    }
-}
-
-function initDropdownMenu() {
-    const menuToggle = document.getElementById('menuToggle');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    
-    if (menuToggle && dropdownMenu) {
-        menuToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdownMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-                dropdownMenu.classList.remove('active');
-            }
-        });
-        
-        // Close dropdown when clicking on links
-        dropdownMenu.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                dropdownMenu.classList.remove('active');
-            });
-        });
-    }
-}
-
-// ===== NOTIFICATION SYSTEM =====
-function showToast(type, title, message, duration = 5000) {
-    const toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) return;
-    
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-times-circle',
-        warning: 'fas fa-exclamation-triangle',
-        info: 'fas fa-info-circle'
-    };
-    
-    toast.innerHTML = `
-        <div class="toast-icon">
-            <i class="${icons[type] || icons.info}"></i>
-        </div>
-        <div class="toast-content">
-            <div class="toast-title">${title}</div>
-            <div class="toast-message">${message}</div>
-        </div>
-        <button class="toast-close">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // Show toast
-    setTimeout(() => toast.classList.add('show'), 100);
-    
-    // Add close functionality
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', () => removeToast(toast));
-    
-    // Auto-remove after duration
-    setTimeout(() => removeToast(toast), duration);
-}
-
-function removeToast(toast) {
-    if (toast && toast.parentNode) {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }
-}
-
-// ===== MODAL SYSTEM =====
-function showModal(type, title, message) {
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMessage = document.getElementById('modalMessage');
-    const modalConfirm = document.getElementById('modalConfirm');
-    const modalClose = document.getElementById('modalClose');
-    
-    if (!modalOverlay) return;
-    
-    modalTitle.textContent = title;
-    modalMessage.textContent = message;
-    
-    modalOverlay.classList.add('show');
-    
-    // Close handlers
-    const closeModal = () => {
-        modalOverlay.classList.remove('show');
-    };
-    
-    modalConfirm.onclick = closeModal;
-    modalClose.onclick = closeModal;
-    
-    modalOverlay.onclick = (e) => {
-        if (e.target === modalOverlay) {
-            closeModal();
-        }
-    };
-    
-    // ESC key handler
-    const escHandler = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', escHandler);
-        }
-    };
-    
-    document.addEventListener('keydown', escHandler);
-}
-
-// ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all systems
-    initValidationRules();
-    initFormHandling();
-    initQuillEditors();
-    initDropzones();
-    initVariantSystem();
-    initAutoSave();
-    initDropdownMenu();
-    
-    // Set up language system
-    updateLanguage();
-    
-    // Language toggle
-    const langToggle = document.getElementById('langToggle');
-    if (langToggle) {
-        langToggle.addEventListener('click', toggleLanguage);
-    }
-    
-    // Restore auto-saved data
-    setTimeout(restoreAutoSave, 1000);
-    
-    // Initial progress calculation
-    calculateProgress();
-    
-    console.log('YouZinElegancia Product Form initialized successfully!');
-});
-
-// ===== GLOBAL FUNCTIONS (for HTML onclick handlers) =====
-window.removeVariant = removeVariant;
-window.updateVariantName = updateVariantName;
-window.handleVariantValueKeyPress = handleVariantValueKeyPress;
-window.addVariantValue = addVariantValue;
-window.removeVariantValue = removeVariantValue;
+        progressFill.style.width = progr
