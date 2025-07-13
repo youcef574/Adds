@@ -1,26 +1,21 @@
 <!DOCTYPE html>
-<html lang="fr" id="html-root">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product – YouZinElegancia</title>
+    <title>إضافة منتج جديد - YouZinElegancia</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Quill.js CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-    
-    <!-- Dropzone.js CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
-    
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Quill CSS -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    
     <!-- External CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Header -->
@@ -36,7 +31,7 @@
             <div class="header-right">
                 <button class="lang-toggle" id="langToggle">
                     <i class="fas fa-globe"></i>
-                    <span>FR</span>
+                    <span id="langText">العربية</span>
                 </button>
                 
                 <div class="user-menu">
@@ -47,16 +42,16 @@
                     <div class="dropdown-menu" id="dropdownMenu">
                         <a href="#" class="dropdown-item">
                             <i class="fas fa-tachometer-alt"></i>
-                            <span data-fr="Tableau de bord" data-en="Dashboard">Tableau de bord</span>
+                            <span data-key="dashboard">لوحة التحكم</span>
                         </a>
                         <a href="#" class="dropdown-item">
                             <i class="fas fa-cog"></i>
-                            <span data-fr="Paramètres" data-en="Settings">Paramètres</span>
+                            <span data-key="settings">الإعدادات</span>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item text-danger">
                             <i class="fas fa-sign-out-alt"></i>
-                            <span data-fr="Déconnexion" data-en="Logout">Déconnexion</span>
+                            <span data-key="logout">تسجيل الخروج</span>
                         </a>
                     </div>
                 </div>
@@ -67,25 +62,25 @@
     <!-- Main Container -->
     <main class="main-container">
         <div class="page-header">
-            <h1 class="page-title" data-fr="Ajouter un nouveau produit" data-en="Add New Product">
+            <h1 class="page-title">
                 <i class="fas fa-plus-circle"></i>
-                Ajouter un nouveau produit
+                <span data-key="add_new_product">إضافة منتج جديد</span>
             </h1>
-            <p class="page-subtitle" data-fr="Complétez les informations ci-dessous pour ajouter votre produit" data-en="Fill in the information below to add your product">
-                Complétez les informations ci-dessous pour ajouter votre produit
+            <p class="page-subtitle" data-key="fill_product_info">
+                املأ المعلومات أدناه لإضافة منتجك
             </p>
         </div>
         
         <!-- Progress Bar -->
         <div class="progress-container">
             <div class="progress-header">
-                <h3 data-fr="Progression du formulaire" data-en="Form Progress">Progression du formulaire</h3>
+                <h3 data-key="form_progress">تقدم النموذج</h3>
                 <span class="progress-percentage" id="progressPercentage">0%</span>
             </div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText" data-fr="Progression: 0%" data-en="Progress: 0%">Progression: 0%</div>
+            <div class="progress-text" id="progressText">التقدم: 0%</div>
         </div>
 
         <!-- Product Form -->
@@ -98,14 +93,14 @@
                         <i class="fas fa-info-circle"></i>
                     </div>
                     <div class="section-title-container">
-                        <h2 class="section-title" data-fr="Informations de base" data-en="Basic Information">Informations de base</h2>
-                        <p class="section-subtitle" data-fr="Détails essentiels du produit" data-en="Essential product details">Détails essentiels du produit</p>
+                        <h2 class="section-title" data-key="basic_information">المعلومات الأساسية</h2>
+                        <p class="section-subtitle" data-key="essential_product_details">تفاصيل المنتج الأساسية</p>
                     </div>
                 </div>
                 
                 <div class="form-grid">
                     <div class="form-field">
-                        <label for="productName" data-fr="Nom du produit" data-en="Product Name">Nom du produit</label>
+                        <label for="productName" data-key="product_name">اسم المنتج</label>
                         <div class="input-container">
                             <input type="text" id="productName" name="productName" required>
                             <div class="input-icon">
@@ -116,7 +111,7 @@
                     </div>
                     
                     <div class="form-field">
-                        <label for="productPrice" data-fr="Prix (DZD)" data-en="Price (DZD)">Prix (DZD)</label>
+                        <label for="productPrice" data-key="price_dzd">السعر (دج)</label>
                         <div class="input-container">
                             <input type="number" id="productPrice" name="productPrice" min="0" step="0.01" required>
                             <div class="input-icon">
@@ -127,7 +122,7 @@
                     </div>
                     
                     <div class="form-field">
-                        <label for="productQuantity" data-fr="Quantité (optionnel)" data-en="Quantity (optional)">Quantité (optionnel)</label>
+                        <label for="productQuantity" data-key="quantity_optional">الكمية (اختياري)</label>
                         <div class="input-container">
                             <input type="number" id="productQuantity" name="productQuantity" min="0">
                             <div class="input-icon">
@@ -146,21 +141,29 @@
                         <i class="fas fa-align-left"></i>
                     </div>
                     <div class="section-title-container">
-                        <h2 class="section-title" data-fr="Description du produit" data-en="Product Description">Description du produit</h2>
-                        <p class="section-subtitle" data-fr="Décrivez votre produit en détail" data-en="Describe your product in detail">Décrivez votre produit en détail</p>
+                        <h2 class="section-title" data-key="product_description">وصف المنتج</h2>
+                        <p class="section-subtitle" data-key="describe_product_detail">اوصف منتجك بالتفصيل</p>
                     </div>
                 </div>
                 
                 <div class="form-grid">
                     <div class="form-field full-width">
-                        <label for="shortDescription" data-fr="Description courte" data-en="Short Description">Description courte</label>
-                        <div id="shortDescription" class="quill-editor short"></div>
+                        <label for="shortDescription" data-key="short_description">وصف مختصر</label>
+                        <div class="input-container">
+                            <textarea id="shortDescription" name="shortDescription" rows="3" required></textarea>
+                            <div class="input-icon">
+                                <i class="fas fa-align-left"></i>
+                            </div>
+                        </div>
                         <div class="error-message" id="shortDescriptionError"></div>
                     </div>
                     
                     <div class="form-field full-width">
-                        <label for="detailedDescription" data-fr="Description détaillée" data-en="Detailed Description">Description détaillée</label>
-                        <div id="detailedDescription" class="quill-editor detailed"></div>
+                        <label for="detailedDescription" data-key="detailed_description">وصف مفصل</label>
+                        <div class="quill-container">
+                            <div id="detailedDescription" class="quill-editor"></div>
+                            <input type="hidden" id="detailedDescriptionHidden" name="detailedDescription" required>
+                        </div>
                         <div class="error-message" id="detailedDescriptionError"></div>
                     </div>
                 </div>
@@ -173,34 +176,36 @@
                         <i class="fas fa-images"></i>
                     </div>
                     <div class="section-title-container">
-                        <h2 class="section-title" data-fr="Images du produit" data-en="Product Images">Images du produit</h2>
-                        <p class="section-subtitle" data-fr="Ajoutez des images attrayantes" data-en="Add attractive images">Ajoutez des images attrayantes</p>
+                        <h2 class="section-title" data-key="product_images">صور المنتج</h2>
+                        <p class="section-subtitle" data-key="add_attractive_images">أضف صوراً جذابة</p>
                     </div>
                 </div>
                 
                 <div class="form-grid">
                     <div class="form-field full-width">
-                        <label for="mainImage" data-fr="Image principale" data-en="Main Image">Image principale</label>
-                        <div class="dropzone main-dropzone" id="mainImageDropzone">
+                        <label for="mainImage" data-key="main_image">الصورة الرئيسية</label>
+                        <div class="dropzone" id="mainImageDropzone">
                             <div class="dropzone-content">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <h4 data-fr="Glissez votre image principale ici" data-en="Drop your main image here">Glissez votre image principale ici</h4>
-                                <p data-fr="ou cliquez pour sélectionner" data-en="or click to select">ou cliquez pour sélectionner</p>
-                                <small data-fr="PNG, JPG, WEBP jusqu'à 5MB" data-en="PNG, JPG, WEBP up to 5MB">PNG, JPG, WEBP jusqu'à 5MB</small>
+                                <h4 data-key="drop_main_image_here">اسحب صورتك الرئيسية هنا</h4>
+                                <p data-key="or_click_to_select">أو انقر للاختيار</p>
+                                <small data-key="png_jpg_webp_5mb">PNG, JPG, WEBP حتى 5MB</small>
                             </div>
+                            <input type="file" id="mainImage" name="mainImage" accept="image/*" style="display: none;">
                         </div>
                         <div class="error-message" id="mainImageError"></div>
                     </div>
                     
                     <div class="form-field full-width">
-                        <label for="imageGallery" data-fr="Galerie d'images" data-en="Image Gallery">Galerie d'images</label>
-                        <div class="dropzone gallery-dropzone" id="imageGalleryDropzone">
+                        <label for="imageGallery" data-key="image_gallery">معرض الصور</label>
+                        <div class="dropzone" id="imageGalleryDropzone">
                             <div class="dropzone-content">
                                 <i class="fas fa-images"></i>
-                                <h4 data-fr="Ajoutez des images supplémentaires" data-en="Add additional images">Ajoutez des images supplémentaires</h4>
-                                <p data-fr="Jusqu'à 5 images" data-en="Up to 5 images">Jusqu'à 5 images</p>
-                                <small data-fr="PNG, JPG, WEBP jusqu'à 5MB chacune" data-en="PNG, JPG, WEBP up to 5MB each">PNG, JPG, WEBP jusqu'à 5MB chacune</small>
+                                <h4 data-key="add_additional_images">أضف صوراً إضافية</h4>
+                                <p data-key="up_to_5_images">حتى 5 صور</p>
+                                <small data-key="png_jpg_webp_5mb_each">PNG, JPG, WEBP حتى 5MB لكل صورة</small>
                             </div>
+                            <input type="file" id="imageGallery" name="imageGallery" accept="image/*" multiple style="display: none;">
                         </div>
                         <div class="error-message" id="imageGalleryError"></div>
                     </div>
@@ -214,12 +219,12 @@
                         <i class="fas fa-layer-group"></i>
                     </div>
                     <div class="section-title-container">
-                        <h2 class="section-title" data-fr="Variantes du produit" data-en="Product Variants">Variantes du produit</h2>
-                        <p class="section-subtitle" data-fr="Ajoutez des options comme la couleur, la taille, etc." data-en="Add options like color, size, etc.">Ajoutez des options comme la couleur, la taille, etc.</p>
+                        <h2 class="section-title" data-key="product_variants">متغيرات المنتج</h2>
+                        <p class="section-subtitle" data-key="add_options_color_size">أضف خيارات مثل اللون والحجم</p>
                     </div>
                     <button type="button" class="add-variant-btn" id="addVariantBtn">
                         <i class="fas fa-plus"></i>
-                        <span data-fr="Ajouter une variante" data-en="Add Variant">Ajouter une variante</span>
+                        <span data-key="add_variant">إضافة متغير</span>
                     </button>
                 </div>
                 
@@ -235,24 +240,24 @@
                         <i class="fas fa-cogs"></i>
                     </div>
                     <div class="section-title-container">
-                        <h2 class="section-title" data-fr="Options supplémentaires" data-en="Additional Options">Options supplémentaires</h2>
-                        <p class="section-subtitle" data-fr="Paramètres avancés du produit" data-en="Advanced product settings">Paramètres avancés du produit</p>
+                        <h2 class="section-title" data-key="additional_options">خيارات إضافية</h2>
+                        <p class="section-subtitle" data-key="advanced_product_settings">إعدادات المنتج المتقدمة</p>
                     </div>
                 </div>
                 
                 <div class="form-grid">
                     <div class="form-field">
-                        <label class="radio-label" data-fr="Visibilité dans la boutique" data-en="Store Visibility">Visibilité dans la boutique</label>
+                        <label class="radio-label" data-key="store_visibility">الظهور في المتجر</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="storeVisibility" value="yes" checked>
+                                <input type="radio" name="storeVisibility" value="visible" checked>
                                 <span class="radio-custom"></span>
-                                <span data-fr="Visible" data-en="Visible">Visible</span>
+                                <span data-key="visible">مرئي</span>
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="storeVisibility" value="no">
+                                <input type="radio" name="storeVisibility" value="hidden">
                                 <span class="radio-custom"></span>
-                                <span data-fr="Masqué" data-en="Hidden">Masqué</span>
+                                <span data-key="hidden">مخفي</span>
                             </label>
                         </div>
                     </div>
@@ -263,22 +268,22 @@
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" id="resetBtn">
                     <i class="fas fa-undo"></i>
-                    <span data-fr="Réinitialiser" data-en="Reset">Réinitialiser</span>
+                    <span data-key="reset">إعادة تعيين</span>
                 </button>
                 
                 <button type="button" class="btn btn-outline" id="previewBtn">
                     <i class="fas fa-eye"></i>
-                    <span data-fr="Aperçu" data-en="Preview">Aperçu</span>
+                    <span data-key="preview">معاينة</span>
                 </button>
                 
                 <button type="button" class="btn btn-warning" id="draftBtn">
                     <i class="fas fa-save"></i>
-                    <span data-fr="Sauvegarder comme brouillon" data-en="Save as Draft">Sauvegarder comme brouillon</span>
+                    <span data-key="save_as_draft">حفظ كمسودة</span>
                 </button>
                 
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-check"></i>
-                    <span data-fr="Enregistrer le produit" data-en="Save Product">Enregistrer le produit</span>
+                    <span data-key="save_product">حفظ المنتج</span>
                 </button>
             </div>
         </form>
@@ -300,7 +305,7 @@
                 <p class="modal-message" id="modalMessage"></p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" id="modalConfirm" data-fr="OK" data-en="OK">OK</button>
+                <button class="btn btn-primary" id="modalConfirm" data-key="ok">موافق</button>
             </div>
         </div>
     </div>
@@ -309,11 +314,14 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <p data-fr="Enregistrement en cours..." data-en="Saving...">Enregistrement en cours...</p>
+            <p data-key="saving">جاري الحفظ...</p>
         </div>
     </div>
 
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    
     <!-- External JavaScript -->
     <script src="script.js"></script>
 </body>
-</html>
+                            </html>
